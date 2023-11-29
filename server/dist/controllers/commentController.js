@@ -9,11 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-class UserController {
-    createUser(req, res) {
+exports.CommentController = void 0;
+class CommentController {
+    createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const file = req.file;
+            const files = req.files;
+            const avatar = files.avatar[0];
+            const attachedFile = files.file[0];
+            const limitOfTXT = 100 * 1024;
+            //?improve it
+            //this is limit for txt files, but i think i could do it in multer
+            if (attachedFile.mimetype === 'text/plain') {
+                if (attachedFile.size > limitOfTXT) {
+                    return res.status(400).json({ ok: false, message: 'File limit reached' });
+                }
+            }
             try {
                 res.status(200).json({ ok: "good" });
             }
@@ -23,4 +33,4 @@ class UserController {
         });
     }
 }
-exports.UserController = UserController;
+exports.CommentController = CommentController;

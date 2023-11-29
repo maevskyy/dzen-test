@@ -1,12 +1,13 @@
-import express, {Express} from 'express'
+import express, { Express } from 'express'
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import http from 'http'
-import dotenv, {DotenvConfigOutput} from 'dotenv'
+import dotenv, { DotenvConfigOutput } from 'dotenv'
 
 import userRoutes from './routes/userRoute'
+import commentRoutes from './routes/commentRoute'
 import { Server, Socket } from 'socket.io';
-import { multerErrorHandler } from './middlewares/multer';
+import { multerErrorHandler, multerMiddleware } from './middlewares/multer';
 
 class App {
     private app: Express;
@@ -30,43 +31,43 @@ class App {
 
         this.config()
         this.rootRoutes()
-        this.setupWebSocket(); 
+        this.setupWebSocket();
         this.runServer();
 
     }
-    private config () {
-        this.app.use(bodyParser.json({limit: '30mb'}))
+    private config() {
+        this.app.use(bodyParser.json({ limit: '30mb' }))
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(bodyParser.text());
-        this.app.use(multerErrorHandler)
 
         this.app.use(cors({
             origin: '',
             credentials: true
         }))
     }
-    
-    private rootRoutes () {
-        this.app.use('/users?', userRoutes)
+
+    private rootRoutes() {
+        this.app.use('/users?', userRoutes, multerErrorHandler)
+        this.app.use('/comments?', commentRoutes, multerErrorHandler)
     }
 
     private setupWebSocket() {
         // Обработка событий WebSocket
         this.io.on('connection', (socket: Socket) => {
-          console.log('A user connected');
-    
-          // Пример обработки события от клиента
-          socket.on('chat message', (msg: string) => {
-            console.log(`message: ${msg}`);
-            // Отправка сообщения всем подключенным клиентам
-            this.io.emit('chat message', msg);
-          });
-    
-          socket.on('disconnect', () => {
-            console.log('User disconnected');
-          });
+            console.log('A user connected');
+
+            // Пример обработки события от клиента
+            socket.on('chat message', (msg: string) => {
+                console.log(`message: ${msg}`);
+                // Отправка сообщения всем подключенным клиентам
+                this.io.emit('chat message', msg);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('User disconnected');
+            });
         });
-      }
+    }
 
     private runServer() {
         this.app.listen(this.port, () => {

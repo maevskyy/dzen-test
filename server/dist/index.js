@@ -9,6 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const http_1 = __importDefault(require("http"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
+const commentRoute_1 = __importDefault(require("./routes/commentRoute"));
 const socket_io_1 = require("socket.io");
 const multer_1 = require("./middlewares/multer");
 class App {
@@ -31,14 +32,14 @@ class App {
         this.app.use(body_parser_1.default.json({ limit: '30mb' }));
         this.app.use(body_parser_1.default.urlencoded({ extended: true }));
         this.app.use(body_parser_1.default.text());
-        this.app.use(multer_1.multerErrorHandler);
         this.app.use((0, cors_1.default)({
             origin: '',
             credentials: true
         }));
     }
     rootRoutes() {
-        this.app.use('/users?', userRoute_1.default);
+        this.app.use('/users?', userRoute_1.default, multer_1.multerErrorHandler);
+        this.app.use('/comments?', commentRoute_1.default, multer_1.multerErrorHandler);
     }
     setupWebSocket() {
         // Обработка событий WebSocket

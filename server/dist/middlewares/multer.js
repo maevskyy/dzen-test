@@ -49,45 +49,34 @@ class Multer {
                 err: err
             });
         };
+        this.multerMiddlware = (0, multer_1.default)({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000, } });
     }
     fileFilter(req, file, cb) {
         const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
-        const isImage = file.mimetype.startsWith('image/');
-        const isText = file.mimetype.startsWith('text/plain');
+        const isImage = file.mimetype.split('/')[0] === 'image';
+        const isText = file.mimetype === 'text/plain';
         const imageFormat = file.mimetype.split('/')[1];
         const isImageFormatValid = allowedImageExtensions.includes(imageFormat);
-        //100 kb
-        const limitForText = 100 * 1024;
         if (isImage) {
             if (isImageFormatValid) {
-                cb(null, true);
+                return cb(null, true);
             }
             if (!isImageFormatValid) {
                 //!type fix
                 //@ts-ignore
-                cb(new multer_1.default.MulterError('LIMIT_UNEXPECTED_FILE'), false);
+                return cb(new multer_1.default.MulterError('LIMIT_UNEXPECTED_FILE'), false);
             }
         }
         if (isText) {
-            if (limitForText) {
-                cb(null, true);
-            }
-            if (!limitForText) {
-                //!type fix
-                //@ts-ignore
-                cb(new multer_1.default.MulterError('LIMIT_FILE_SIZE'), false);
-            }
+            return cb(null, true);
         }
         else {
-            //!type fix
-            //@ts-ignore
-            cb(new multer_1.default.MulterError('LIMIT_FILE_SIZE'), false);
+            const error = new Error('File must be an image or text');
+            error.code = 'LIMIT_UNEXPECTED_FILE';
+            cb(error, false);
         }
-    }
-    multerMiddlware() {
-        return (0, multer_1.default)({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000 } });
     }
 }
 const multerInstance = new Multer();
 exports.multerErrorHandler = multerInstance.multerErrorHandler.bind(multerInstance);
-exports.multerMiddleware = multerInstance.multerMiddlware.bind(multerInstance);
+exports.multerMiddleware = multerInstance.multerMiddlware;

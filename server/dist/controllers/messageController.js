@@ -14,12 +14,7 @@ class UserController {
     createUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const file = req.file;
-            try {
-                res.status(200).json({ ok: "good" });
-            }
-            catch (error) {
-                res.status(400).json({ error: error, message: 'bad', ok: false });
-            }
+            return console.log(file);
         });
     }
 }

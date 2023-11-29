@@ -6,39 +6,30 @@ class Multer {
 
     private fileFilter(req: Request, file: Express.Multer.File, cb: FileFilterCallback) {
         const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
-        const isImage = file.mimetype.startsWith('image/');
-        const isText = file.mimetype.startsWith('text/plain');
+        const isImage = file.mimetype.split('/')[0] === 'image';
+        const isText = file.mimetype === 'text/plain';
         const imageFormat = file.mimetype.split('/')[1]
         const isImageFormatValid = allowedImageExtensions.includes(imageFormat)
-        //100 kb
-        const limitForText = 100 * 1024
 
 
         if (isImage) {
             if (isImageFormatValid) {
-                cb(null, true)
+                return cb(null, true)
             }
             if (!isImageFormatValid) {
                 //!type fix
                 //@ts-ignore
-                cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'), false);
+                return cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'), false);
             }
         }
 
         if (isText) {
-            if (limitForText) {
-                cb(null, true)
-            }
-            if (!limitForText) {
-                //!type fix
-                //@ts-ignore
-                cb(new multer.MulterError('LIMIT_FILE_SIZE'), false);
-            }
+            return cb(null, true)
         }
         else {
-            //!type fix
-            //@ts-ignore
-            cb(new multer.MulterError('LIMIT_FILE_SIZE'), false);
+            const error = new Error('File must be an image or text');
+            (error as any).code = 'LIMIT_UNEXPECTED_FILE';
+            cb(error as any, false);
         }
 
     }
@@ -66,12 +57,11 @@ class Multer {
         });
     };
 
-    public multerMiddlware() {
-        return multer({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000 } })
-    }
+    public multerMiddlware = multer({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000, } })
+
 
 }
 
 const multerInstance = new Multer();
 export const multerErrorHandler = multerInstance.multerErrorHandler.bind(multerInstance);
-export const multerMiddleware = multerInstance.multerMiddlware.bind(multerInstance);
+export const multerMiddleware = multerInstance.multerMiddlware
