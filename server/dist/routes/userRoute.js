@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController_1 = require("../controllers/userController");
+// import { multerMiddlware } from '../middlewares/multer';
 const router = (0, express_1.Router)();
 const user = new userController_1.UserController();
 router.get('/', () => { });

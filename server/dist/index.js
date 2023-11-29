@@ -10,6 +10,7 @@ const http_1 = __importDefault(require("http"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const socket_io_1 = require("socket.io");
+const multer_1 = require("./middlewares/multer");
 class App {
     constructor(port) {
         this.app = (0, express_1.default)();
@@ -30,6 +31,7 @@ class App {
         this.app.use(body_parser_1.default.json({ limit: '30mb' }));
         this.app.use(body_parser_1.default.urlencoded({ extended: true }));
         this.app.use(body_parser_1.default.text());
+        this.app.use(multer_1.multerErrorHandler);
         this.app.use((0, cors_1.default)({
             origin: '',
             credentials: true

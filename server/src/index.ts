@@ -6,6 +6,7 @@ import dotenv, {DotenvConfigOutput} from 'dotenv'
 
 import userRoutes from './routes/userRoute'
 import { Server, Socket } from 'socket.io';
+import { multerErrorHandler } from './middlewares/multer';
 
 class App {
     private app: Express;
@@ -37,6 +38,7 @@ class App {
         this.app.use(bodyParser.json({limit: '30mb'}))
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(bodyParser.text());
+        this.app.use(multerErrorHandler)
 
         this.app.use(cors({
             origin: '',
