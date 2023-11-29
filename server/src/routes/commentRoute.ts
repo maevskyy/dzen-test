@@ -9,7 +9,7 @@ router.get('/', () => { })
 router.post('/',
     multerMiddleware.fields([
         { name: 'avatar', maxCount: 1 },
-        { name: 'text', maxCount: 1 },
+        { name: 'userData', maxCount: 1 },
         { name: 'file', maxCount: 1 }
     ]),
     comment.createComment)

@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
+const client_1 = __importDefault(require("../prisma/client"));
 class CommentController {
     createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -17,6 +21,8 @@ class CommentController {
             const avatar = files.avatar[0];
             const attachedFile = files.file[0];
             const limitOfTXT = 100 * 1024;
+            const requiredFields = ['userName', 'email', 'text'];
+            const userData = JSON.parse(req.body.userData);
             //?improve it
             //this is limit for txt files, but i think i could do it in multer
             if (attachedFile.mimetype === 'text/plain') {
@@ -24,7 +30,24 @@ class CommentController {
                     return res.status(400).json({ ok: false, message: 'File limit reached' });
                 }
             }
+            if (Object.keys(req.body).length === 0) {
+                return res.status(400).json({ ok: false, message: "Give me some body pls" });
+            }
+            //?check if all fields alright (make it middlware )
+            for (const field of requiredFields) {
+                if (!(field in userData)) {
+                    return res.status(400).json({ ok: false, message: `Missing required field: ${requiredFields}` });
+                }
+            }
             try {
+                const createUser = yield client_1.default.user.create({ data: { userName: userData.userName, email: userData.email } });
+                const comment = yield client_1.default.comment.create({
+                    data: {
+                        text: userData.text,
+                        home_page: 'example.com',
+                        authorId: createUser.id,
+                    },
+                });
                 res.status(200).json({ ok: "good" });
             }
             catch (error) {
