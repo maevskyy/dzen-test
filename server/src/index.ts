@@ -7,7 +7,7 @@ import dotenv, { DotenvConfigOutput } from 'dotenv'
 import userRoutes from './routes/userRoute'
 import commentRoutes from './routes/commentRoute'
 import { Server, Socket } from 'socket.io';
-import { multerErrorHandler, multerMiddleware } from './middlewares/multer';
+import { multerErrorHandler } from './middlewares/multer';
 
 class App {
     private app: Express;
