@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  userName String @unique
+  email    String @unique
+
+  comments Comment[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+
+  text      String
+  home_page String?
+
+  author   User @relation(fields: [authorId], references: [id])
+  authorId Int
+
+  successorId Int?    @unique
+  successor   Comment?   @relation("BlogOwnerHistory", fields: [successorId], references: [id])
+  predecessor Comment?   @relation("BlogOwnerHistory")
+
+  created_at DateTime @default(now())
+}
