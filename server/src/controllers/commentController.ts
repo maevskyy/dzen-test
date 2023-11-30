@@ -5,8 +5,31 @@ import S3 from "../services/awsS3.service";
 export interface MulterFiles {
     [fieldname: string]: Express.Multer.File[];
 }
+type TUserData = {
+    userName: string,
+    email: string,
+    text: string,
+}
 
 export class CommentController {
+
+    private async createUserWithCommnet (userData: TUserData ) {
+        const user = await prisma.user.create({
+            data: {
+              userName: userData.userName,
+              email: userData.email,
+              // Другие поля пользователя
+            },
+          });
+        
+          const comment = await prisma.comment.create({
+            data: {
+              text: 'This is a sample comment',
+              // Другие поля комментария
+              authorId: user.id, // Связываем комментарий с пользователем
+            },
+          });
+    }
 
     public async createComment(req: Request, res: Response) {
         const files = req.files as MulterFiles

@@ -8,11 +8,13 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  userName String @unique
-  email    String @unique
+  id Int @id @default(autoincrement())
 
-  comments Comment[]
+  userName String
+  email    String
+  avatar   String?
+
+  comments Comment?
 }
 
 model Comment {
@@ -20,13 +22,14 @@ model Comment {
 
   text      String
   home_page String?
+  file      String?
 
   author   User @relation(fields: [authorId], references: [id])
-  authorId Int
+  authorId Int @unique
 
-  successorId Int?    @unique
-  successor   Comment?   @relation("BlogOwnerHistory", fields: [successorId], references: [id])
-  predecessor Comment?   @relation("BlogOwnerHistory")
+  successorId Int?     @unique
+  successor   Comment? @relation("BlogOwnerHistory", fields: [successorId], references: [id])
+  predecessor Comment? @relation("BlogOwnerHistory")
 
   created_at DateTime @default(now())
 }
