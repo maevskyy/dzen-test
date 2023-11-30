@@ -12,9 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createComment = void 0;
+exports.createUser = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
-const createComment = (req, res, userData) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (req, res, userData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const createdUser = yield client_1.default.user.create({ data: { userName: userData.userName, email: userData.email } });
         return createdUser;
@@ -24,4 +24,4 @@ const createComment = (req, res, userData) => __awaiter(void 0, void 0, void 0, 
         console.log(error);
     }
 });
-exports.createComment = createComment;
+exports.createUser = createUser;

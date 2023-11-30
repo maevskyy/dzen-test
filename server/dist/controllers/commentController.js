@@ -14,21 +14,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
+const createComment_service_1 = require("../services/createComment.service");
 class CommentController {
     createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const files = req.files;
             const userData = JSON.parse(req.body.userData);
             try {
-                const createdUser = yield ;
+                const createdUser = yield (0, createComment_service_1.createUser)(req, res, userData);
                 // const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
-                const comment = yield client_1.default.comment.create({
-                    data: {
-                        text: userData.text,
-                        home_page: 'example.com',
-                        authorId: createUser.id,
-                    },
-                });
+                // const comment = await prisma.comment.create({
+                //     data: {
+                //         text: userData.text,
+                //         home_page: 'example.com',
+                //         authorId: createUser.id,
+                //     },
+                // });
                 res.status(200).json({ ok: "good" });
             }
             catch (error) {

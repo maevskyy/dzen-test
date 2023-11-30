@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import prisma from "../prisma/client"
+import { createUser } from "../services/createComment.service";
 
 export interface MulterFiles {
     [fieldname: string]: Express.Multer.File[];
@@ -11,16 +12,16 @@ export class CommentController {
         const userData = JSON.parse(req.body.userData)
 
         try {
-            const createdUser = await 
+            const createdUser = await createUser(req, res, userData)
             // const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
 
-            const comment = await prisma.comment.create({
-                data: {
-                    text: userData.text,
-                    home_page: 'example.com',
-                    authorId: createUser.id,
-                },
-            });
+            // const comment = await prisma.comment.create({
+            //     data: {
+            //         text: userData.text,
+            //         home_page: 'example.com',
+            //         authorId: createUser.id,
+            //     },
+            // });
 
 
             res.status(200).json({ ok: "good" })

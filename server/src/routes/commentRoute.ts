@@ -1,19 +1,21 @@
 import { Router } from 'express';
 import { CommentController } from '../controllers/commentController';
 import { multerMiddleware } from '../middlewares/multer';
-import { commentValidation } from '../middlewares/commentValidation';
+import { avatarValidation, userDataValidation, fileValidation } from '../middlewares/commentValidation';
 
 const router = Router();
 const comment = new CommentController()
 
-router.get('/', () => { })
+router.get('/', comment.getAllComments)
 router.post('/',
     multerMiddleware.fields([
         { name: 'avatar', maxCount: 1 },
         { name: 'userData', maxCount: 1 },
         { name: 'file', maxCount: 1 }
     ]),
-    commentValidation,
+    avatarValidation,
+    userDataValidation,
+    fileValidation,
     comment.createComment)
 router.delete('/', () => { })
 router.patch('/', () => { })
