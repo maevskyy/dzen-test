@@ -11,8 +11,8 @@ export class CommentController {
         const userData = JSON.parse(req.body.userData)
 
         try {
-
-            const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
+            const createdUser = await 
+            // const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
 
             const comment = await prisma.comment.create({
                 data: {
@@ -28,4 +28,14 @@ export class CommentController {
             res.status(400).json({ error: error, message: 'bad', ok: false })
         }
     }
+
+    public async getAllComments (req: Request, res: Response) {
+        try {
+            const getAllUsers = await prisma.user.findMany()
+            res.status(200).json({ok: true, message: "all users here", data: getAllUsers})
+        } catch (error) {
+            res.status(400).json({ error: error, message: 'bad', ok: false })
+        }
+    }
+
 }

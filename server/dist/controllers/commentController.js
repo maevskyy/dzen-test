@@ -20,7 +20,8 @@ class CommentController {
             const files = req.files;
             const userData = JSON.parse(req.body.userData);
             try {
-                const createUser = yield client_1.default.user.create({ data: { userName: userData.userName, email: userData.email } });
+                const createdUser = yield ;
+                // const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
                 const comment = yield client_1.default.comment.create({
                     data: {
                         text: userData.text,
@@ -29,6 +30,17 @@ class CommentController {
                     },
                 });
                 res.status(200).json({ ok: "good" });
+            }
+            catch (error) {
+                res.status(400).json({ error: error, message: 'bad', ok: false });
+            }
+        });
+    }
+    getAllComments(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getAllUsers = yield client_1.default.user.findMany();
+                res.status(200).json({ ok: true, message: "all users here", data: getAllUsers });
             }
             catch (error) {
                 res.status(400).json({ error: error, message: 'bad', ok: false });

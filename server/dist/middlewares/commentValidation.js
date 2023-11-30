@@ -1,37 +1,99 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentValidation = void 0;
+exports.fileValidation = exports.userDataValidation = exports.avatarValidation = void 0;
+const sharp_1 = __importDefault(require("sharp"));
 class CommnetValidation {
-    constructor() {
-        this.limitOfTXT = 100 * 1024;
-        this.requiredFields = ['userName', 'email', 'text'];
+    resizePhoto(buffer, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const resizedBuffer = yield (0, sharp_1.default)(buffer).resize(320, 240).toBuffer();
+                return resizedBuffer;
+            }
+            catch (error) {
+                res.status(400).json({ ok: false, message: "Cannot resize this image" });
+                throw error;
+            }
+        });
     }
-    validate(req, res, next) {
-        try {
-            const files = req.files;
-            const attachedFile = files.file[0];
-            const userData = JSON.parse(req.body.userData);
-            //?improve it
-            //this is limit for txt files, but i think i could do it in multer
-            if (attachedFile.mimetype === 'text/plain') {
-                if (attachedFile.size > this.limitOfTXT) {
-                    return res.status(400).json({ ok: false, message: 'File limit reached' });
+    avatarValidation(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const files = req.files;
+                const avatar = files.avatar && files.avatar[0];
+                if (avatar) {
+                    if (avatar.mimetype.split('/')[0] === 'image') {
+                        avatar.buffer = yield this.resizePhoto(avatar.buffer, res);
+                    }
+                    if (avatar.mimetype.split('/')[0] !== 'image') {
+                        return res.status(400).json({ ok: false, message: "Avatar must be an image" });
+                    }
                 }
+                next();
             }
-            //if body is wrong
-            for (const field of this.requiredFields) {
-                if (!(field in userData)) {
-                    return res.status(400).json({ ok: false, message: `Missing required field: ${this.requiredFields}` });
+            catch (error) {
+                res.status(400).json({ ok: false, message: 'Avatar validation error', error });
+            }
+        });
+    }
+    userDataValidation(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const requiredFields = ['userName', 'email', 'text'];
+            try {
+                const userData = JSON.parse(req.body.userData);
+                for (const field of requiredFields) {
+                    if (!(field in userData)) {
+                        return res.status(400).json({ ok: false, message: `Missing required field: ${requiredFields}` });
+                    }
                 }
+                next();
             }
-            next();
-        }
-        catch (error) {
-            //?why i cannot hanlde error in normal way 
-            //errror about empty body just here, idk, its just 
-            res.status(400).json({ ok: false, message: 'Body is required' });
-        }
+            catch (error) {
+                //in case if body is empty
+                res.status(400).json({ ok: false, message: `Missing required userData fields is: ${requiredFields}` });
+            }
+        });
+    }
+    fileValidation(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //100kb
+            const limitOfTXT = 100 * 1024;
+            try {
+                const files = req.files;
+                const attachedFile = files.file && files.file[0];
+                if (attachedFile) {
+                    const isImage = attachedFile.mimetype.split('/')[0] === 'image';
+                    const isFile = attachedFile.mimetype.split('/')[0] === 'text';
+                    if (isImage) {
+                        attachedFile.buffer = yield this.resizePhoto(attachedFile.buffer, res);
+                    }
+                    if (isFile) {
+                        //this probably shoudl be in multer
+                        if (attachedFile.size > limitOfTXT) {
+                            return res.status(400).json({ ok: false, message: 'Maximum limit for .txt files is 100kb' });
+                        }
+                    }
+                }
+                next();
+            }
+            catch (error) {
+                res.status(400).json({ ok: false, message: 'File validation error' });
+            }
+        });
     }
 }
 const validationInstance = new CommnetValidation();
-exports.commentValidation = validationInstance.validate.bind(validationInstance);
+exports.avatarValidation = validationInstance.avatarValidation.bind(validationInstance);
+exports.userDataValidation = validationInstance.userDataValidation.bind(validationInstance);
+exports.fileValidation = validationInstance.fileValidation.bind(validationInstance);

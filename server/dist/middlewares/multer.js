@@ -44,11 +44,6 @@ class Multer {
                 });
             }
             next(err);
-            // res.status(500).json({
-            //     ok: false,
-            //     message: 'Server error',
-            //     err: err
-            // });
         };
         this.multerMiddlware = (0, multer_1.default)({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000, } });
     }
