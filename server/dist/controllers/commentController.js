@@ -16,6 +16,24 @@ exports.CommentController = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
 const awsS3_service_1 = __importDefault(require("../services/awsS3.service"));
 class CommentController {
+    createUserWithCommnet(userData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield client_1.default.user.create({
+                data: {
+                    userName: userData.userName,
+                    email: userData.email,
+                    // Другие поля пользователя
+                },
+            });
+            const comment = yield client_1.default.comment.create({
+                data: {
+                    text: 'This is a sample comment',
+                    // Другие поля комментария
+                    authorId: user.id, // Связываем комментарий с пользователем
+                },
+            });
+        });
+    }
     createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const files = req.files;

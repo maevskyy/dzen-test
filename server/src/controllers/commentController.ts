@@ -18,15 +18,13 @@ export class CommentController {
             data: {
               userName: userData.userName,
               email: userData.email,
-              // Другие поля пользователя
             },
           });
         
           const comment = await prisma.comment.create({
             data: {
               text: 'This is a sample comment',
-              // Другие поля комментария
-              authorId: user.id, // Связываем комментарий с пользователем
+              authorId: user.id, 
             },
           });
     }
