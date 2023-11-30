@@ -4,7 +4,6 @@ import cors from 'cors'
 import http from 'http'
 import dotenv, { DotenvConfigOutput } from 'dotenv'
 
-import userRoutes from './routes/userRoute'
 import commentRoutes from './routes/commentRoute'
 import { Server, Socket } from 'socket.io';
 import { multerErrorHandler } from './middlewares/multer';
@@ -47,7 +46,6 @@ class App {
     }
 
     private rootRoutes() {
-        this.app.use('/users?', userRoutes, multerErrorHandler)
         this.app.use('/comments?', commentRoutes, multerErrorHandler)
     }
 

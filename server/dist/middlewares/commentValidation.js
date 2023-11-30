@@ -15,10 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fileValidation = exports.userDataValidation = exports.avatarValidation = void 0;
 const sharp_1 = __importDefault(require("sharp"));
 class CommnetValidation {
-    resizePhoto(buffer, res) {
+    resizePhoto(buffer, maxWidth, maxHeight, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const resizedBuffer = yield (0, sharp_1.default)(buffer).resize(320, 240).toBuffer();
+                const { width, height } = yield (0, sharp_1.default)(buffer).metadata();
+                // new relations for image sides
+                const aspectRatio = width / height;
+                let newWidth = maxWidth;
+                let newHeight = newWidth / aspectRatio;
+                if (newHeight > maxHeight) {
+                    newHeight = maxHeight;
+                    newWidth = newHeight * aspectRatio;
+                }
+                const resizedBuffer = yield (0, sharp_1.default)(buffer).resize(Math.round(newWidth), Math.round(newHeight)).toBuffer();
                 return resizedBuffer;
             }
             catch (error) {
@@ -34,7 +43,7 @@ class CommnetValidation {
                 const avatar = files.avatar && files.avatar[0];
                 if (avatar) {
                     if (avatar.mimetype.split('/')[0] === 'image') {
-                        avatar.buffer = yield this.resizePhoto(avatar.buffer, res);
+                        avatar.buffer = yield this.resizePhoto(avatar.buffer, 320, 240, res);
                     }
                     if (avatar.mimetype.split('/')[0] !== 'image') {
                         return res.status(400).json({ ok: false, message: "Avatar must be an image" });
@@ -76,7 +85,7 @@ class CommnetValidation {
                     const isImage = attachedFile.mimetype.split('/')[0] === 'image';
                     const isFile = attachedFile.mimetype.split('/')[0] === 'text';
                     if (isImage) {
-                        attachedFile.buffer = yield this.resizePhoto(attachedFile.buffer, res);
+                        attachedFile.buffer = yield this.resizePhoto(attachedFile.buffer, 320, 240, res);
                     }
                     if (isFile) {
                         //this probably shoudl be in multer

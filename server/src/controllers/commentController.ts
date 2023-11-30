@@ -12,21 +12,25 @@ type TUserData = {
 }
 
 export class CommentController {
-
-    private async createUserWithCommnet (userData: TUserData ) {
+    public async createUserWithCommnet(userData: TUserData, avatar?: string, file?: string) {
         const user = await prisma.user.create({
             data: {
-              userName: userData.userName,
-              email: userData.email,
+                userName: userData.userName,
+                email: userData.email,
+                ...(avatar ? { avatar } : {})
             },
-          });
-        
-          const comment = await prisma.comment.create({
+        });
+
+        const comment = await prisma.comment.create({
             data: {
-              text: 'This is a sample comment',
-              authorId: user.id, 
+                text: userData.text,
+                authorId: user.id,
+                ...(file ? { file } : {})
             },
-          });
+        });
+
+        console.log('User and comment created:', user, comment);
+
     }
 
     public async createComment(req: Request, res: Response) {
@@ -38,14 +42,39 @@ export class CommentController {
         const aws = new S3()
 
         try {
-            //?this is working!
-            // if (avatar) {
-            //     const {awsUrl} = await aws.s3Upload(avatar) 
-            // }
+
+            const createUserWithComment = async (userData: TUserData, avatar?: string, file?: string) => {
+                const user = await prisma.user.create({
+                    data: {
+                        userName: userData.userName,
+                        email: userData.email,
+                        ...(avatar ? { avatar } : {})
+                    },
+                });
+
+                await prisma.comment.create({
+                    data: {
+                        text: userData.text,
+                        authorId: user.id,
+                        ...(file ? { file } : {})
+                    },
+                });
+            }
+
+            //upload to s3
+            const avatarUploadPromise = avatar ? aws.s3Upload(avatar) : null;
+            const fileUploadPromise = attachedFile ? aws.s3Upload(attachedFile) : null;
+            
+            const [avatarResult, fileResult] = await Promise.all([avatarUploadPromise, fileUploadPromise]);
+            
+            const avatarUrl = avatarResult ? avatarResult.awsUrl : undefined;
+            const fileUrl = fileResult ? fileResult.awsUrl : undefined;
+            
+            await createUserWithComment(userData, avatarUrl, fileUrl);
 
             if (attachedFile) {
                 // const {awsUrl} = await aws.s3Upload(attachedFile)
-                
+
             }
 
             // const createdUser = await createUser(req, res, userData)

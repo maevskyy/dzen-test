@@ -8,7 +8,6 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
 const http_1 = __importDefault(require("http"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const commentRoute_1 = __importDefault(require("./routes/commentRoute"));
 const socket_io_1 = require("socket.io");
 const multer_1 = require("./middlewares/multer");
@@ -38,7 +37,6 @@ class App {
         }));
     }
     rootRoutes() {
-        this.app.use('/users?', userRoute_1.default, multer_1.multerErrorHandler);
         this.app.use('/comments?', commentRoute_1.default, multer_1.multerErrorHandler);
     }
     setupWebSocket() {

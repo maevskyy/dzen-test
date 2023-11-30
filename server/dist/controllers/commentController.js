@@ -16,22 +16,15 @@ exports.CommentController = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
 const awsS3_service_1 = __importDefault(require("../services/awsS3.service"));
 class CommentController {
-    createUserWithCommnet(userData) {
+    createUserWithCommnet(userData, avatar, file) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield client_1.default.user.create({
-                data: {
-                    userName: userData.userName,
-                    email: userData.email,
-                    // Другие поля пользователя
-                },
+                data: Object.assign({ userName: userData.userName, email: userData.email }, (avatar ? { avatar } : {})),
             });
             const comment = yield client_1.default.comment.create({
-                data: {
-                    text: 'This is a sample comment',
-                    // Другие поля комментария
-                    authorId: user.id, // Связываем комментарий с пользователем
-                },
+                data: Object.assign({ text: userData.text, authorId: user.id }, (file ? { file } : {})),
             });
+            console.log('User and comment created:', user, comment);
         });
     }
     createComment(req, res) {
@@ -42,10 +35,21 @@ class CommentController {
             const attachedFile = files.file && files.file[0];
             const aws = new awsS3_service_1.default();
             try {
-                //?this is working!
-                // if (avatar) {
-                //     const {awsUrl} = await aws.s3Upload(avatar) 
-                // }
+                const createUserWithComment = (userData, avatar, file) => __awaiter(this, void 0, void 0, function* () {
+                    const user = yield client_1.default.user.create({
+                        data: Object.assign({ userName: userData.userName, email: userData.email }, (avatar ? { avatar } : {})),
+                    });
+                    yield client_1.default.comment.create({
+                        data: Object.assign({ text: userData.text, authorId: user.id }, (file ? { file } : {})),
+                    });
+                });
+                //upload to s3
+                const avatarUploadPromise = avatar ? aws.s3Upload(avatar) : null;
+                const fileUploadPromise = attachedFile ? aws.s3Upload(attachedFile) : null;
+                const [avatarResult, fileResult] = yield Promise.all([avatarUploadPromise, fileUploadPromise]);
+                const avatarUrl = avatarResult ? avatarResult.awsUrl : undefined;
+                const fileUrl = fileResult ? fileResult.awsUrl : undefined;
+                yield createUserWithComment(userData, avatarUrl, fileUrl);
                 if (attachedFile) {
                     // const {awsUrl} = await aws.s3Upload(attachedFile)
                 }
