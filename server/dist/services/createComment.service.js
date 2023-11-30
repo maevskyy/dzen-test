@@ -8,20 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = void 0;
-const client_1 = __importDefault(require("../prisma/client"));
-const createUser = (req, res, userData) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const createdUser = yield client_1.default.user.create({ data: { userName: userData.userName, email: userData.email } });
-        return createdUser;
-    }
-    catch (error) {
-        res.status(400).json({ ok: false, message: 'vfd', error });
-        console.log(error);
-    }
+exports.awsUpload = void 0;
+const awsUpload = () => __awaiter(void 0, void 0, void 0, function* () {
 });
-exports.createUser = createUser;
+exports.awsUpload = awsUpload;

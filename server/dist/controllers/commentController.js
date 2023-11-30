@@ -14,14 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
-const createComment_service_1 = require("../services/createComment.service");
+const awsS3_service_1 = __importDefault(require("../services/awsS3.service"));
 class CommentController {
     createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const files = req.files;
             const userData = JSON.parse(req.body.userData);
+            const avatar = files.avatar && files.avatar[0];
+            const attachedFile = files.file && files.file[0];
+            const aws = new awsS3_service_1.default();
             try {
-                const createdUser = yield (0, createComment_service_1.createUser)(req, res, userData);
+                //?this is working!
+                // if (avatar) {
+                //     const {awsUrl} = await aws.s3Upload(avatar) 
+                // }
+                if (attachedFile) {
+                    // const {awsUrl} = await aws.s3Upload(attachedFile)
+                }
+                // const createdUser = await createUser(req, res, userData)
                 // const createUser = await prisma.user.create({ data: { userName: userData.userName, email: userData.email } })
                 // const comment = await prisma.comment.create({
                 //     data: {
@@ -33,6 +43,7 @@ class CommentController {
                 res.status(200).json({ ok: "good" });
             }
             catch (error) {
+                console.log(error);
                 res.status(400).json({ error: error, message: 'bad', ok: false });
             }
         });
