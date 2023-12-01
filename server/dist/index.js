@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ioSocket = void 0;
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
@@ -57,4 +58,5 @@ class App {
         });
     }
 }
-new App(8888);
+const instance = new App(8888);
+exports.ioSocket = instance.io;

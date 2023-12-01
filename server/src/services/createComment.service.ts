@@ -1,6 +1,6 @@
 import prisma from "../prisma/client";
 
-interface Comment {
+type Comment =  {
     id: number;
     text: string;
     home_page: string | null;
@@ -11,82 +11,23 @@ interface Comment {
     replies: Comment[]
 }
 
-//!fix types
-export const formatCommentForClient = (comments: any) => {
-
-    const commentMap = new Map<number, Comment>();
-    comments.forEach((comment: Comment) => commentMap.set(comment.id, comment));
-
-    const updatedComments = comments.map((comment: Comment) => {
-        if (comment.successorId !== null) {
-            const parentComment = commentMap.get(comment.successorId);
-            if (parentComment) {
-                if (!parentComment.replies) {
-                    parentComment.replies = [];
-                }
-                parentComment.replies.push(comment);
-            }
-        }
-        return comment;
-    });
-
-    return updatedComments.filter((comment: Comment) => comment.successorId === null);
+type TUserData = {
+    userName: string,
+    email: string,
+    text: string,
 }
 
-export const formatCommentForClient2 = async (comments: any) => {
-    const commentMap = new Map<number, Comment>();
+type TCommentData = {
+    text: string,
+    authorId: number,
+    file?: string,
+    successorId?: number
 
-    // Загрузка комментариев в Map для дальнейшего использования
-    comments.forEach((comment: Comment) => commentMap.set(comment.id, comment));
+}
 
-    // Изменение каждого комментария, добавляя к нему массив replies
-    const updatedComments = await Promise.all(
-        comments.map(async (comment: Comment) => {
-            if (comment.successorId !== null) {
-                const parentComment = commentMap.get(comment.successorId);
-                if (parentComment) {
-                    // Если у родительского комментария еще нет replies, создаем новый массив
-                    if (!parentComment.replies) {
-                        parentComment.replies = [];
-                    }
-
-                    // Загрузка информации о пользователе для текущего комментария
-                    const user = await prisma.user.findUnique({
-                        where: { id: comment.authorId },
-                        select: {
-                            id: true,
-                            userName: true,
-                            email: true,
-                            avatar: true,
-                        },
-                    });
-
-                    // Добавление маппированного комментария с информацией о пользователе
-                    parentComment.replies.push({
-                        id: comment.id,
-                        text: comment.text,
-                        home_page: comment.home_page,
-                        file: comment.file,
-                        //@ts-ignore
-                        ownerData: user,
-                        created_at: new Date(comment.created_at),
-                    });
-                }
-            }
-            return comment;
-        })
-    );
-
-    // Оставляем только те комментарии, у которых нет successorId (топовые комментарии)
-    const topLevelComments = updatedComments.filter((comment: Comment) => comment.successorId === null);
-
-    return topLevelComments;
-};
 
 export const formatCommentForClient3 = async (comments: any) => {
     const commentMap = new Map<number, Comment>();
-
-    // Загрузка комментариев в Map для дальнейшего использования
     comments.forEach((comment: Comment) => commentMap.set(comment.id, comment));
 
     // Изменение каждого комментария, добавляя к нему массив replies
@@ -132,6 +73,7 @@ export const formatCommentForClient3 = async (comments: any) => {
                     authorId: comment.authorId,
                     successorId: comment.successorId,
                     created_at: new Date(comment.created_at),
+                    //!fix types
                     //@ts-ignore
                     ownerData: user,
                 });
@@ -146,3 +88,31 @@ export const formatCommentForClient3 = async (comments: any) => {
 
     return topLevelComments;
 };
+
+export const createUserWithComment = async (userData: TUserData, avatar?: string, file?: string, parentId?: number) => {
+    const user = await prisma.user.create({
+        data: {
+            userName: userData.userName,
+            email: userData.email,
+            ...(avatar ? { avatar } : {})
+        },
+    });
+    const commentData: TCommentData = {
+        text: userData.text,
+        authorId: user.id,
+        ...(file ? { file } : {})
+    };
+
+    if (parentId) {
+        commentData.successorId = parentId;
+    }
+
+    const comment = await prisma.comment.create({
+        data: commentData,
+    })
+
+    return {
+        ...comment,
+        ownerData: user
+    }
+}

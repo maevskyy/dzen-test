@@ -7,12 +7,13 @@ import dotenv, { DotenvConfigOutput } from 'dotenv'
 import commentRoutes from './routes/commentRoute'
 import { Server, Socket } from 'socket.io';
 import { multerErrorHandler } from './middlewares/multer';
+import { CommentController } from './controllers/commentController';
 
 class App {
     private app: Express;
     private dotenvConfig: DotenvConfigOutput;
     private server: http.Server;
-    private io: Server;
+    public io: Server;
     private port: number;
 
     constructor(port: number) {
@@ -69,7 +70,8 @@ class App {
             console.log(`Server running on http://localhost:${this.port}`)
         })
     }
-
 }
 
-new App(8888)
+const instance = new App(8888)
+export const ioSocket = instance.io
+

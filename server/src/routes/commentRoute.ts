@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { CommentController } from '../controllers/commentController';
 import { multerMiddleware } from '../middlewares/multer';
 import { avatarValidation, userDataValidation, fileValidation } from '../middlewares/commentValidation';
+import { ioSocket } from '..';
 
 const router = Router();
 const comment = new CommentController()
