@@ -40,13 +40,10 @@ class App {
         this.app.use('/comments?', commentRoute_1.default, multer_1.multerErrorHandler);
     }
     setupWebSocket() {
-        // Обработка событий WebSocket
         this.io.on('connection', (socket) => {
             console.log('A user connected');
-            // Пример обработки события от клиента
             socket.on('chat message', (msg) => {
                 console.log(`message: ${msg}`);
-                // Отправка сообщения всем подключенным клиентам
                 this.io.emit('chat message', msg);
             });
             socket.on('disconnect', () => {

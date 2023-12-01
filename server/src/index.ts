@@ -50,14 +50,11 @@ class App {
     }
 
     private setupWebSocket() {
-        // Обработка событий WebSocket
         this.io.on('connection', (socket: Socket) => {
             console.log('A user connected');
 
-            // Пример обработки события от клиента
             socket.on('chat message', (msg: string) => {
                 console.log(`message: ${msg}`);
-                // Отправка сообщения всем подключенным клиентам
                 this.io.emit('chat message', msg);
             });
 

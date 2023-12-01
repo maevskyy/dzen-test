@@ -29,7 +29,7 @@ class Multer {
     constructor() {
         this.storage = multer_1.default.memoryStorage();
         this.multerErrorHandler = (err, req, res, next) => {
-            //this is handler for all multer errors possible, and i putted here global hanlder just in case (that one with 500 status)
+            //this is handler for all multer errors possible
             if (err instanceof multer_1.MulterError) {
                 const responseMessage = err.code === 'LIMIT_FILE_SIZE'
                     ? 'File is too large'
