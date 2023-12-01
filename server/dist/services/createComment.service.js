@@ -15,57 +15,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUserWithComment = exports.formatCommentForClient3 = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
 const formatCommentForClient3 = (comments) => __awaiter(void 0, void 0, void 0, function* () {
-    const commentMap = new Map();
-    comments.forEach((comment) => commentMap.set(comment.id, comment));
-    // Изменение каждого комментария, добавляя к нему массив replies
-    const updatedComments = yield Promise.all(comments.map((comment) => __awaiter(void 0, void 0, void 0, function* () {
-        const user = yield client_1.default.user.findUnique({
-            where: { id: comment.authorId },
-            select: {
-                id: true,
-                userName: true,
-                email: true,
-                avatar: true,
-            },
-        });
-        // Если это корневой комментарий
-        if (comment.successorId === null) {
-            return {
-                id: comment.id,
-                text: comment.text,
-                home_page: comment.home_page,
-                file: comment.file,
-                authorId: comment.authorId,
-                successorId: comment.successorId,
-                created_at: new Date(comment.created_at),
-                ownerData: user,
-                replies: [],
-            };
-        }
-        // Если это ответ, добавляем его к родительскому комментарию
-        const parentComment = commentMap.get(comment.successorId);
-        if (parentComment) {
-            if (!parentComment.replies) {
-                parentComment.replies = [];
-            }
-            parentComment.replies.push({
-                id: comment.id,
-                text: comment.text,
-                home_page: comment.home_page,
-                file: comment.file,
-                authorId: comment.authorId,
-                successorId: comment.successorId,
-                created_at: new Date(comment.created_at),
-                //!fix types
-                //@ts-ignore
-                ownerData: user,
-            });
-        }
-        return null;
+    const addUserData = yield Promise.all(comments.map((comment) => __awaiter(void 0, void 0, void 0, function* () {
+        const userId = comment.authorId;
+        const getUser = yield client_1.default.user.findUnique({ where: { id: userId } });
+        return Object.assign(Object.assign({}, comment), { ownerData: getUser });
     })));
-    // Оставляем только те корневые комментарии
-    const topLevelComments = updatedComments.filter((comment) => comment !== null);
-    return topLevelComments;
+    const sortComments = (comments) => {
+        const commentMap = new Map();
+        // Помещаем комментарии в карту для быстрого доступа
+        comments.forEach((comment) => commentMap.set(comment.id, comment));
+        // Создаем новый массив, помещая комментарии в replies
+        const sortedComments = comments.reduce((result, comment) => {
+            if (comment.successorId !== null) {
+                const parentComment = commentMap.get(comment.successorId);
+                if (parentComment) {
+                    if (!parentComment.replies) {
+                        parentComment.replies = [];
+                    }
+                    parentComment.replies.push(comment);
+                }
+            }
+            else {
+                result.push(comment);
+            }
+            return result;
+        }, []);
+        return sortedComments;
+    };
+    return sortComments(addUserData);
 });
 exports.formatCommentForClient3 = formatCommentForClient3;
 const createUserWithComment = (userData, avatar, file, parentId) => __awaiter(void 0, void 0, void 0, function* () {

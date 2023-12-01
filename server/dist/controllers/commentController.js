@@ -67,6 +67,7 @@ class CommentController {
                     skip: skip,
                     where: whereClause,
                 });
+                console.log(allComments);
                 const formatComments = yield (0, createComment_service_1.formatCommentForClient3)(allComments);
                 res.status(200).json({ ok: true, message: "All comments", data: formatComments });
             }

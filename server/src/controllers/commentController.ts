@@ -73,6 +73,9 @@ export class CommentController {
                 where: whereClause,
 
             })
+
+            console.log(allComments)
+            
             
             const formatComments = await formatCommentForClient3(allComments)
 
