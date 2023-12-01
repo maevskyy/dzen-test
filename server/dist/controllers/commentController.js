@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
 const client_1 = __importDefault(require("../prisma/client"));
 const awsS3_service_1 = __importDefault(require("../services/awsS3.service"));
+const createComment_service_1 = require("../services/createComment.service");
 class CommentController {
     createComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -56,11 +57,28 @@ class CommentController {
     getAllComments(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getAllUsers = yield client_1.default.user.findMany();
-                res.status(200).json({ ok: true, message: "all users here", data: getAllUsers });
+                //this is for paggination
+                const { page = 1, pageSize = 20, authorName, authorEmail } = req.query;
+                const skip = (Number(page) - 1) * Number(pageSize);
+                //!type fix
+                //this is for sort by author and email
+                const whereClause = {};
+                if (authorName) {
+                    whereClause.author = { userName: { startsWith: authorName.toString().toLowerCase() } };
+                }
+                if (authorEmail) {
+                    whereClause.author = { email: { startsWith: authorEmail.toString().toLowerCase() } };
+                }
+                const allComments = yield client_1.default.comment.findMany({
+                    take: pageSize,
+                    skip: skip,
+                    where: whereClause,
+                });
+                const formatComments = yield (0, createComment_service_1.formatCommentForClient3)(allComments);
+                res.status(200).json({ ok: true, message: "All comments", data: formatComments });
             }
             catch (error) {
-                res.status(400).json({ error: error, message: 'bad', ok: false });
+                res.status(400).json({ ok: false, message: 'Cannot get comments', error: error });
             }
         });
     }
