@@ -9,7 +9,8 @@ class S3 {
     }
   
     private generateKey(file: Express.Multer.File, path: string = 'photos/'): string {
-      return `${path}${uuid()}-${file.originalname}`;
+      const justInCase = file.originalname.replace(/ /g, '%2B')
+      return `${path}-${justInCase}`;
     }
   
     private generateParams(file: Express.Multer.File, path: string = 'photos/') {
@@ -18,7 +19,8 @@ class S3 {
         Key: this.generateKey(file, path),
         Body: file.buffer,
         ContentType: file.mimetype,
-        ContentDisposition: 'inline'
+        ContentDisposition: 'inline',
+        CacheControl: 'no-store'
       };
     }
   

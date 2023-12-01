@@ -87,6 +87,10 @@ class CommnetValidation {
             const attachedFile = files.file && files.file[0]
 
             if (attachedFile) {
+                //resize is dont work properly for gifs(just turned them into image), but i can fixed it i guess
+                if (attachedFile.mimetype.split('/')[1] === 'gif' || attachedFile.mimetype.split('/')[1] === 'webp') {
+                    return next()
+                }
                 const isImage = attachedFile.mimetype.split('/')[0] === 'image'
                 const isFile = attachedFile.mimetype.split('/')[0] === 'text'
                 if (isImage) {

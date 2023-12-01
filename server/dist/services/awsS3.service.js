@@ -10,13 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_s3_1 = require("@aws-sdk/client-s3");
-const uuid_1 = require("uuid");
 class S3 {
     constructor() {
         this.s3Client = new client_s3_1.S3Client({ region: process.env.AWS_REGION });
     }
     generateKey(file, path = 'photos/') {
-        return `${path}${(0, uuid_1.v4)()}-${file.originalname}`;
+        const justInCase = file.originalname.replace(/ /g, '%2B');
+        return `${path}-${justInCase}`;
     }
     generateParams(file, path = 'photos/') {
         return {
@@ -24,7 +24,8 @@ class S3 {
             Key: this.generateKey(file, path),
             Body: file.buffer,
             ContentType: file.mimetype,
-            ContentDisposition: 'inline'
+            ContentDisposition: 'inline',
+            CacheControl: 'no-store'
         };
     }
     s3Upload(file, path = 'photos/') {

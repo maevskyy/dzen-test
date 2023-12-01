@@ -48,7 +48,7 @@ class Multer {
         this.multerMiddlware = (0, multer_1.default)({ storage: this.storage, fileFilter: this.fileFilter.bind(this), limits: { fileSize: 5000000, } });
     }
     fileFilter(req, file, cb) {
-        const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
+        const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'webp'];
         const isImage = file.mimetype.split('/')[0] === 'image';
         const isText = file.mimetype === 'text/plain';
         const imageFormat = file.mimetype.split('/')[1];

@@ -5,7 +5,7 @@ class Multer {
     private storage = multer.memoryStorage()
 
     private fileFilter(req: Request, file: Express.Multer.File, cb: FileFilterCallback) {
-        const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
+        const allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png','webp'];
         const isImage = file.mimetype.split('/')[0] === 'image';
         const isText = file.mimetype === 'text/plain';
         const imageFormat = file.mimetype.split('/')[1]
