@@ -59,12 +59,22 @@ class CommnetValidation {
     userDataValidation(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             const requiredFields = ['userName', 'email', 'text'];
+            const emailReg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             try {
                 const userData = JSON.parse(req.body.userData);
+                //missing required field
                 for (const field of requiredFields) {
                     if (!(field in userData)) {
                         return res.status(400).json({ ok: false, message: `Missing required field: ${requiredFields}` });
                     }
+                }
+                //invalid email
+                if (!userData.email.match(emailReg)) {
+                    return res.status(400).json({ ok: false, message: `Invalid email format` });
+                }
+                //invalid userName
+                if (userData.userName.length <= 2 || userData.userName.length > 20) {
+                    return res.status(400).json({ ok: false, message: `Invalid name format, 2-20 letters` });
                 }
                 next();
             }
