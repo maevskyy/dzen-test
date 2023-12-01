@@ -6,9 +6,10 @@
 	"scripts": {
 		"serv": "nodemon dist/index.js",
 		"ts": "tsc -w",
-		"prisma:migrate": "prisma migrate deploy",
-		"prisma:generate": "prisma generate",
-		"build": "npm run prisma:migrate && npm run prisma:generate && tsc"
+		"prisma:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+		"prisma:migrate": "prisma migrate deploy --schema=./src/prisma/schema.prisma",
+		"build": "npm run prisma:migrate && npm run prisma:generate && tsc",
+		"start": "node dist/index.js"
 	},
 	"author": "",
 	"license": "ISC",
