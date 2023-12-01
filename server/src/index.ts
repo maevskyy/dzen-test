@@ -7,7 +7,6 @@ import dotenv, { DotenvConfigOutput } from 'dotenv'
 import commentRoutes from './routes/commentRoute'
 import { Server, Socket } from 'socket.io';
 import { multerErrorHandler } from './middlewares/multer';
-import { CommentController } from './controllers/commentController';
 
 class App {
     private app: Express;
