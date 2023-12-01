@@ -1,20 +1,25 @@
 import { PrismaClient } from '@prisma/client'
 
-//some basic settings for types in prisma
-declare global {
-    namespace NodeJS {
-        interface Global {}
-    }
-}
+// //some basic settings for types in prisma
+// declare global {
+//     namespace NodeJS {
+//         interface Global {}
+//     }
+// }
 
-interface CustomNodeJsGlobal extends NodeJS.Global {
-    prisma: PrismaClient
-}
+// interface CustomNodeJsGlobal extends NodeJS.Global {
+//     prisma: PrismaClient
+// }
 
-declare const global: CustomNodeJsGlobal
+// declare const global: CustomNodeJsGlobal
 
-const prisma = global.prisma || new PrismaClient()
+// const prisma = global.prisma || new PrismaClient()
 
-if (process.env.NODE_ENV === "development") global.prisma = prisma
+// if (process.env.NODE_ENV === "development") global.prisma = prisma
+
+// export default prisma
+
+// const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient()
 
 export default prisma
